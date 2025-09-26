@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+# Editor
+.vscode/
+
+# build directory
+build/
