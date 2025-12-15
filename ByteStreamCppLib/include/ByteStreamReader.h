@@ -1,80 +1,75 @@
 #ifndef __BYTE_STREAM_READER_H__
 #define __BYTE_STREAM_READER_H__
 
-#include "Types.h"
+#include <Types.h>
+#include <Helper.h>
 #include <functional>
 #include <cassert>
 #include <string>
 #include <optional>
+#include <span>
+#include <climits>
 
-#define BYTE_MASK 0xFF
-#define FAST_MOD_8(val) ((val) & 7)
-#define CAST_TO_BYTE(val) ((val) & BYTE_MASK)
-#define MOST_SIGNIFICANT_BIT(val) ((val) & 0x80)
-#define IS_SET(val) ((val) > 0)
-#define IS_NOT_SET(val) ((val) <= 0)
 
-namespace ByteStream
+namespace ByteStreamCpp
 {
 
 template<typename U>
 using ShapeFn = std::function<U(size_t)>;
 
-template<typename T>
+template<typename Container>
 class ByteStreamReader
 {
-    const T& data_;
-    size_t size_;
+    Container& view;
     size_t bytesUsedIndex;
     size_t bitsRemaining;
-    size_t remainder;
+    byte remainder;
 
 public:
 
-    ByteStreamReader(const T& data, size_t size)
-        : data_(data)
-        , size_(size)
+    ByteStreamReader(Container& v)
+        : view(v)
         , bytesUsedIndex(0)
         , bitsRemaining(0)
         , remainder(0)
     {}
 
-    constexpr T& data() const
-    {        
-        return data_;
+    constexpr Container& data()
+    {
+        return view;
     }
 
     constexpr uint64 bytesRead() const
     {
-        return 0;
+        return bytesUsedIndex - (static_cast<byte>(bitsRemaining <= 0) >> 0);
     }
 
     constexpr uint64 bitsRead() const
     {
-        return 0;
+        return bytesUsedIndex * CHAR_BIT - (CHAR_BIT - bitsRemaining);
     }
 
     constexpr uint64 dataBytes() const
     {
-        return 0;
+        return view.size();
     }
 
     constexpr uint64 dataBits() const
     {
-        return 0;
+        return dataBytes() * CHAR_BIT;
     }
 
     constexpr bool isAtEnd() const
     {
-        return 0;
+        return (bytesUsedIndex * CHAR_BIT - (CHAR_BIT - bitsRemaining)) >= dataBits();
     }
 
-    ByteStreamReader<T>& skipBit()
+    ByteStreamReader<Container>& skipBit()
     {
         return *this;
     }
 
-    ByteStreamReader<T>& skipBits(uint64 bits)
+    ByteStreamReader<Container>& skipBits(uint64 bits)
     {
         return *this;
     }
@@ -89,27 +84,27 @@ public:
         return 0;
     }
 
-    ByteStreamReader<T>& skip1s()
+    ByteStreamReader<Container>& skip1s()
     {
         return *this;
     }
 
-    ByteStreamReader<T>& skip0s()
+    ByteStreamReader<Container>& skip0s()
     {
         return *this;
     }
 
-    ByteStreamReader<T>& rewind(size_t bits)
+    ByteStreamReader<Container>& rewind(size_t bits)
     {
         return *this;
     }
 
-    ByteStreamReader<T>& rewind(size_t bits, size_t bytes)
+    ByteStreamReader<Container>& rewind(size_t bits, size_t bytes)
     {
         return *this;
     }
 
-    ByteStreamReader<T>& flush()
+    ByteStreamReader<Container>& flush()
     {
         return *this;
     }
@@ -196,6 +191,7 @@ public:
 
     uint8 readBit()
     {
+        return 0;
     }
 
     uint8 peakBit()
@@ -383,24 +379,24 @@ public:
         return 0;
     }
 
-    template<U>
+    template<typename U>
     U readList(ShapeFn<U> fn, uint64 quantityBits)
     {
-
+        return fn();
     }
 
-    template<U>
+    template<typename U>
     U peakList(ShapeFn<U> fn, uint64 quantityBits)
     {
-
+        return fn();
     }
 
-    uint64 pop(T& destiny, uint8 bitsToRead, uint64 bufBits)
+    uint64 pop(Container& destiny, uint8 bitsToRead, uint64 bufBits)
     {
         return 0;
     }
 
-    uint64 peak(T& destiny, uint8 bitsToRead, uint64 bufBits)
+    uint64 peak(Container& destiny, uint8 bitsToRead, uint64 bufBits)
     {
         return 0;
     }

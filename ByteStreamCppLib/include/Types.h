@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-namespace ByteStream
+namespace ByteStreamCpp
 {
 
 static_assert(sizeof(unsigned char) == 1);
